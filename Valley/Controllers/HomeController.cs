@@ -25,7 +25,7 @@ namespace Valley.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetInfo(UserData udate)
+        public JsonResult GetData(UserData udate)
         {
             if (!IsDataValid(udate))
                 return Json(new { success = false });
@@ -33,6 +33,17 @@ namespace Valley.Controllers
             db.UsersData.Add(udate);
             db.SaveChanges();
 
+            var points = CalculatePoints(udate);
+
+            foreach (var p in points)
+                db.Points.Add(p);
+            db.SaveChanges();
+
+            return Json(new { success = true, points });
+        }
+
+        private List<Point> CalculatePoints(UserData udate)
+        {
             float a = udate.A;
             float b = udate.B;
             float c = udate.C;
@@ -51,11 +62,7 @@ namespace Valley.Controllers
                 points.Add(p);
             }
 
-            foreach (var p in points)
-                db.Points.Add(p);
-            db.SaveChanges();
-
-            return Json(new { success = true, points = points });
+            return points;
         }
 
         private bool IsDataValid(UserData udate)
